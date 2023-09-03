@@ -18,7 +18,7 @@ This repository contains a script that automates the configuration of a network 
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/your_username/your_repository.git
+    git clone https://github.com/mir1218/gns3_tap0.git
     ```
 
 2. **Navigate to the repository directory:**
