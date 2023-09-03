@@ -13,6 +13,7 @@ This repository contains a script that automates the configuration of a network 
 
 - GNS3 VM version > 2.0 
 - Root or sudo access
+- Addional Network Adapter added to GNS3 VM 
 
 ### Installation and Execution
 
