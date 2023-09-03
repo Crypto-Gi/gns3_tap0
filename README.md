@@ -28,12 +28,12 @@ This repository contains a script that automates the configuration of a network 
 
 3. **Make the script executable:**
     ```bash
-    chmod +x install_setup_network_service.sh
+    chmod +x install_tap0_network_service.sh
     ```
 
 4. **Run the script:**
     ```bash
-    sudo ./install_setup_network_service.sh
+    sudo ./install_tap0_network_service.sh
     ```
 
 ### What the Script Does
@@ -48,7 +48,7 @@ This repository contains a script that automates the configuration of a network 
 
 ---
 
-## Script Content (`install_setup_network_service.sh`)
+## Script Content (`install_tap0_network_service.sh`)
 
 ```bash
 #!/bin/bash
