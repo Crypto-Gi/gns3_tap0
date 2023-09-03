@@ -11,7 +11,7 @@ service_path="/etc/systemd/system/setup_network.service"
 
 # Function to execute the network setup script
 execute_setup_network() {
-    echo -e "${GREEN}Executing network setup script... (Step 5/5)${NC}"
+    echo -e "${GREEN}Executing network setup script... (Step 1/5)${NC}"
     sudo bash $script_path
 }
 
@@ -24,7 +24,7 @@ is_package_installed() {
 echo -e "${GREEN}Initiating Network Setup ...${NC}"
 
 # Step 1: Check for required packages
-echo -e "${GREEN}Checking for required packages... (Step 1/5)${NC}"
+echo -e "${GREEN}Checking for required packages... (Step 2/5)${NC}"
 if ! is_package_installed "uml-utilities" || ! is_package_installed "bridge-utils"; then
     echo -e "${RED}Updating package list...${NC}"
     sudo apt update -y
@@ -33,7 +33,7 @@ else
 fi
 
 # Step 2: Check if the network setup script already exists
-echo -e "${GREEN}Setting up network script... (Step 2/5)${NC}"
+echo -e "${GREEN}Setting up network script... (Step 3/5)${NC}"
 if [ ! -f $script_path ]; then
     echo -e "${RED}Creating network setup script...${NC}"
     cat > $script_path << 'EOF'
@@ -75,11 +75,11 @@ EOF
     # Execute the network setup script
     execute_setup_network
 else
-    echo -e "${GREEN}Network setup script already exists. Skipping... (Step 3/5)${NC}"
+    echo -e "${GREEN}Network setup script already exists. Skipping... (Step 4/5)${NC}"
 fi
 
 # Step 4: Check if the systemd service file already exists
-echo -e "${GREEN}Setting up systemd service... (Step 4/5)${NC}"
+echo -e "${GREEN}Setting up systemd service... (Step 5/5)${NC}"
 if [ ! -f $service_path ]; then
     echo -e "${RED}Creating systemd service file...${NC}"
     cat > $service_path << 'EOF'
