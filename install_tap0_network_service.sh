@@ -3,6 +3,9 @@
 # ANSI escape codes for colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+WHITE='\033[1;37m'
+PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
 # File paths
@@ -11,8 +14,10 @@ service_path="/etc/systemd/system/setup_network.service"
 
 # Function to execute the network setup script
 execute_setup_network() {
-    echo -e "${GREEN}Executing network setup script... (Step 1/5)${NC}"
-    sudo bash $script_path
+    echo -e "${YELLOW}→ ${WHITE}Executing network setup script... ${RED}[100%]${NC}"
+    if ! sudo bash $script_path; then
+        echo -e "${RED}Error executing network setup script. ${PURPLE}Continuing...${NC}"
+    fi
 }
 
 # Function to check if a package is installed
@@ -21,67 +26,51 @@ is_package_installed() {
     return $?
 }
 
-echo -e "${GREEN}Initiating Network Setup ...${NC}"
+echo -e "${WHITE}Initiating Network Setup - ...${NC}"
 
 # Step 1: Check for required packages
-echo -e "${GREEN}Checking for required packages... (Step 2/5)${NC}"
+echo -e "${RED}→ ${WHITE}Step 1/4 ${YELLOW}Checking for required packages... ${RED}[25%]${NC}"
 if ! is_package_installed "uml-utilities" || ! is_package_installed "bridge-utils"; then
-    echo -e "${RED}Updating package list...${NC}"
-    sudo apt update -y
+    echo -e "${PURPLE}Installing required packages... ${PURPLE}[50%]${NC}"
+    sudo apt update -y &> /dev/null
+    sudo apt install -y uml-utilities bridge-utils &> /dev/null
 else
-    echo -e "${GREEN}Required packages are already installed. Skipping package list update.${NC}"
+    echo -e "${PURPLE}Required packages are already installed. ${RED}[50%]${NC}"
 fi
 
 # Step 2: Check if the network setup script already exists
-echo -e "${GREEN}Setting up network script... (Step 3/5)${NC}"
+echo -e "${RED}→ ${WHITE}Step 2/4 ${YELLOW}Setting up network script... ${RED}[75%]${NC}"
 if [ ! -f $script_path ]; then
-    echo -e "${RED}Creating network setup script...${NC}"
+    echo -e "${PURPLE}Creating network setup script... ${RED}[100%]${NC}"
+
+    # Create the script file with your network setup logic here
     cat > $script_path << 'EOF'
 #!/bin/bash
 
-# Install uml-utilities if not already installed
-if ! is_package_installed "uml-utilities"; then
-    sudo apt install uml-utilities -y
-fi
-
-# Install bridge-utils if not already installed
-if ! is_package_installed "bridge-utils"; then
-    sudo apt install bridge-utils -y
-fi
-
 # Create and configure the network interfaces
-sudo tunctl -t tap0 && \
-sudo ifconfig tap0 0.0.0.0 promisc up && \
-sudo ifconfig eth1 0.0.0.0 promisc up && \
+sudo tunctl -t tap0
+sudo ifconfig tap0 0.0.0.0 promisc up
+sudo ifconfig eth1 0.0.0.0 promisc up
 
 # Create the bridge and add interfaces to it
-sudo brctl addbr br0 && \
-sudo brctl addif br0 tap0 && \
-sudo brctl addif br0 eth1 && \
+sudo brctl addbr br0
+sudo brctl addif br0 tap0
+sudo brctl addif br0 eth1
 
 # Bring up the bridge and tap interfaces
-sudo ifconfig br0 up && \
+sudo ifconfig br0 up
 sudo ifconfig tap0 up
 EOF
 
-    echo "is_package_installed() {" >> $script_path
-    echo "    dpkg -l \"\$1\" &> /dev/null" >> $script_path
-    echo "    return \$?" >> $script_path
-    echo "}" >> $script_path
-
-    # Make the script executable
     chmod +x $script_path
-
-    # Execute the network setup script
-    execute_setup_network
 else
-    echo -e "${GREEN}Network setup script already exists. Skipping... (Step 4/5)${NC}"
+    echo -e "${YELLOW}Network setup script already exists. ${RED}[100%]${NC}"
 fi
 
-# Step 4: Check if the systemd service file already exists
-echo -e "${GREEN}Setting up systemd service... (Step 5/5)${NC}"
+# Step 3: Check if the systemd service file already exists
+echo -e "${RED}→ ${WHITE}Step 3/4 ${YELLOW}Setting up systemd service... ${RED}[100%]${NC}"
 if [ ! -f $service_path ]; then
-    echo -e "${RED}Creating systemd service file...${NC}"
+    echo -e "${PURPLE}Creating systemd service file... ${RED}[100%]${NC}"
     cat > $service_path << 'EOF'
 [Unit]
 Description=Network Setup Script
@@ -98,7 +87,9 @@ EOF
     systemctl daemon-reload
     systemctl enable setup_network.service
 else
-    echo -e "${GREEN}Systemd service file already exists. Skipping...${NC}"
+    echo -e "${PURPLE}Systemd service file already exists. ${RED}[100%]${NC}"
 fi
 
-echo -e "${GREEN}Setup complete. The network script will run at boot if not already configured.${NC}"
+# Step 4: Execute the network setup script
+echo -e "${RED}→ ${WHITE}Step 4/4 ${YELLOW}Executing network setup script... ${RED}[100%]${NC}"
+execute_setup_network
